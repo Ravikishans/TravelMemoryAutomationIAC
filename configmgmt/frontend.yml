@@ -1,0 +1,93 @@
+- hosts: backend
+  become: yes
+  tasks:
+
+  - name: cloning the repo
+    git:
+      repo: https://github.com/Ravikishans/TravelMemory.git
+      dest: /home/ubuntu/TravelMemory
+      # update: yes
+      # version: 'branch_or_commit'
+    ignore_errors: yes
+  - name: creating .env inside backend
+    shell: |
+      echo "MONGO_URI='mongodb+srv://ravikishan:Cluster0@cluster0.y9zohpu.mongodb.net/traveelmemory'					
+      PORT=3001" > /home/ubuntu/TravelMemory/backend/.env
+  - name: updating nginx
+    shell: |
+      echo "server {
+                listen 80;
+                listen [::]:80;
+                server_name _;
+
+                location / {
+                        proxy_pass http://localhost:3001;
+                        proxy_http_version 1.1;
+                        proxy_set_header Upgrade \$http_upgrade;
+                        proxy_set_header Connection 'upgrade';
+                        proxy_set_header Host \$host;
+                        proxy_cache_bypass \$http_upgrade;
+                }
+        }
+        " > /etc/nginx/sites-available/default
+  - name: restart nginx
+    shell: |
+      sudo nginx -t
+      sudo systemctl reload nginx
+
+  - name: node install
+    shell: |
+      curl -sL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh
+      sudo bash /tmp/nodesource_setup.sh
+      sudo apt install nodejs -y
+      node -v
+
+  - name: run backend
+    shell: |
+      cd /home/ubuntu/TravelMemory/backend
+      sudo npm install
+      node index.js &
+
+
+
+
+- hosts: frontend
+  become: yes
+  tasks:
+
+  - name: cloning the repo
+    git:
+      repo: https://github.com/Ravikishans/TravelMemory.git
+      dest: /home/ubuntu/TravelMemory
+      # update: yes
+      # version: 'branch_or_commit'
+    ignore_errors: yes
+  - name: updating url.js inside frontend
+    shell: |
+      echo 'export const baseUrl = "http://10.0.3.139:3001"' > /home/ubuntu/TravelMemory/frontend/src/url.js
+  - name: updating nginx
+    shell: |
+      echo "server {
+                listen 80;
+                listen [::]:80;
+                server_name _;
+
+                location / {
+                        proxy_pass http://localhost:3000;
+                        proxy_http_version 1.1;
+                        proxy_set_header Upgrade \$http_upgrade;
+                        proxy_set_header Connection 'upgrade';
+                        proxy_set_header Host \$host;
+                        proxy_cache_bypass \$http_upgrade;
+                }
+        }
+        " > /etc/nginx/sites-available/default
+  - name: restart nginx
+    shell: |
+      sudo nginx -t
+      sudo systemctl reload nginx      
+  - name: run frontend
+    shell: |
+      cd /home/ubuntu/TravelMemory/frontend
+      sudo npm install
+      npm start &
