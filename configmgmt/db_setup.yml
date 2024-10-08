@@ -1,0 +1,30 @@
+---
+- name: Install and configure MongoDB on EC2 instance
+  hosts: database
+  become: yes
+  tasks:
+
+    - name: Download MongoDB GPG key
+      shell: |
+        wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
+      args:
+        executable: /bin/bash
+        
+    - name: Add MongoDB APT repository
+      apt_repository:
+        repo: "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse"
+        state: present
+        filename: "mongodb-org"
+        update_cache: yes
+
+    - name: Install MongoDB
+      apt:
+        name: mongodb-org
+        state: present
+        update_cache: yes
+
+    - name: Start MongoDB
+      service:
+        name: mongod
+        state: started
+        enabled: yes

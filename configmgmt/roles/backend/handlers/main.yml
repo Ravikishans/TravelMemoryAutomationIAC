@@ -1,0 +1,24 @@
+---
+# Handlers are executed when notified by tasks
+
+- name: run backend
+  shell: |
+    cd /home/ubuntu/TravelMemory/backend
+    sudo npm install
+    node index.js &
+  args:
+    chdir: /home/ubuntu/TravelMemory/backend
+  async: 60
+  poll: 0
+  notify:
+    - restart backend
+
+- name: restart backend
+  shell: |
+    pkill -f "node index.js"
+    cd /home/ubuntu/TravelMemory/backend
+    node index.js &
+  args:
+    chdir: /home/ubuntu/TravelMemory/backend
+  async: 60
+  poll: 0

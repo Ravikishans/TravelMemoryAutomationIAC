@@ -1,0 +1,8 @@
+---
+- name: Create MongoDB user and database
+  mongodb_user:
+    login_user: admin
+    login_password: admin
+    name: travelmemoryuser
+    password: password
+    database: travelmemory    

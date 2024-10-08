@@ -225,6 +225,11 @@ resource "aws_lb_target_group" "frontend_tg" {
     Name = "${var.project}-frontend-tg"
   }
 }
+# Associate frontend instance with the frontend target group
+resource "aws_lb_target_group_attachment" "frontend_attachment" {
+  target_group_arn = aws_lb_target_group.frontend_tg.arn
+  target_id        = aws_instance.frontend_server.id
+}
 
 # Define the target group for backend
 resource "aws_lb_target_group" "backend_tg" {
@@ -243,6 +248,18 @@ resource "aws_lb_target_group" "backend_tg" {
   tags = {
     Name = "${var.project}-backend-tg"
   }
+}
+
+# Associate backend instance with the database target group
+resource "aws_lb_target_group_attachment" "backend_attachment" {
+  target_group_arn = aws_lb_target_group.backend_tg.arn
+  target_id        = aws_instance.backend_server.id
+}
+
+# Associate database instance with the database target group
+resource "aws_lb_target_group_attachment" "database_attachment" {
+  target_group_arn = aws_lb_target_group.databse_tg.arn
+  target_id        = aws_instance.data_base.id
 }
 
 # Define the target group for backend

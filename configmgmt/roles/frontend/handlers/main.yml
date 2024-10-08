@@ -1,0 +1,23 @@
+---
+# Handlers are executed when notified by tasks
+
+- name: run frontend with nohup
+  shell: |
+    cd /home/ubuntu/TravelMemory/frontend
+    sudo nohup npm start > /dev/null 2>&1 &
+  args:
+    chdir: /home/ubuntu/TravelMemory/frontend
+  async: 60
+  poll: 0
+  notify:
+    - restart frontend
+
+- name: restart frontend
+  shell: |
+    pkill -f "npm start"
+    cd /home/ubuntu/TravelMemory/frontend
+    sudo nohup npm start > /dev/null 2>&1 &
+  args:
+    chdir: /home/ubuntu/TravelMemory/frontend
+  async: 60
+  poll: 0

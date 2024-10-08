@@ -29,3 +29,8 @@ output "public_subnet_id" {
   description = "ID of the public subnet"
   value       = aws_subnet.public_subnet[*].id
 }
+
+output "elastic_ip" {
+  value = aws_eip.nat_eip.public_ip
+  description = "the public ip of elastic ip"
+}
