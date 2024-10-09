@@ -1,14 +1,16 @@
-- hosts: backend
-  become: yes
-  roles:
-  - backend
+# - hosts: backend
+#   become: yes
+#   roles:
+#   - backend
 
 - hosts: database
   become: yes
   roles:
   - database
+  vars_files:
+  - ./roles/database/vars/vars.yml
 
-- hosts: frontend
-  become: yes
-  roles:
-  - frontend
+# - hosts: frontend
+#   become: yes
+#   roles:
+#   - frontend

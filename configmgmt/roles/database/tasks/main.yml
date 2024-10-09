@@ -1,8 +1,54 @@
 ---
-- name: Create MongoDB user and database
+- name: Create MongoDB root user
   mongodb_user:
-    login_user: admin
-    login_password: admin
-    name: travelmemoryuser
-    password: password
-    database: travelmemory    
+    login_host: "{{ login_host }}"
+    login_port: "{{ login_port }}"
+    database: "admin"
+    name: "{{ mongodb_root_user }}"
+    password: "{{ mongodb_root_password }}"
+    roles: "root"
+
+- name: Create MongoDB administrative user siteUserAdmin
+  mongodb_user:
+    login_host: "{{ login_host }}"
+    login_user: "{{ mongodb_root_user }}"
+    login_password: "{{ mongodb_root_password }}"
+    login_port: "{{ login_port }}"
+    database: "{{ database_name }}"
+    name: "{{ mongodb_admin_user }}"
+    password: "{{ mongodb_admin_password }}"
+    roles:
+      - { db: "admin", role: "readWrite" }
+      - { db: "{{ database_name }}", role: "readWrite" }
+
+- name: Create MongoDB backup user siteUserBackup
+  mongodb_user:
+    login_host: "{{ login_host }}"
+    login_user: "{{ mongodb_root_user }}"
+    login_password: "{{ mongodb_root_password }}"
+    login_port: "{{ login_port }}"
+    database: "{{ database_name }}"
+    name: "{{ mongodb_backup_user }}"
+    password: "{{ mongodb_backup_password }}"
+    roles:
+      - { db: "admin", role: "backup" }
+
+- name: Enable remote connections in MongoDB
+  lineinfile:
+    path: /etc/mongod.conf
+    regexp: '^ *bindIp:.*'
+    line: '  bindIp: 0.0.0.0'
+    state: present
+    backup: yes
+  notify:
+    - Restart MongoDB Service
+
+- name: Enable authentication in MongoDB
+  lineinfile:
+    path: /etc/mongod.conf
+    line: "security:\n  authorization: enabled"
+    insertafter: "^#security:"
+    state: present
+    backup: yes
+  notify: 
+    - Restart MongoDB Service

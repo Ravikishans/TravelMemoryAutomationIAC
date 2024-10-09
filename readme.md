@@ -24,18 +24,24 @@ travel-memory-project/
 │   ├── db_setup.yml
 │   ├── ansible.cfg
 │   └── roles/
-│       ├── web/
+│       ├── frontend/
 │       │   ├── tasks/
 │       │   │   └── main.yml
 │       │   ├── handlers/
+│       │       └── main.yml
+        ├── backend/
+│       │   ├── tasks/
 │       │   │   └── main.yml
-│       │   └── files/
-│       └── db/
+│       │   ├── handlers/
+│       │       └── main.yml    
+│       │   
+│       └── database/
 │           ├── tasks/
 │           │   └── main.yml
 │           ├── handlers/
 │           │   └── main.yml
-│           └── files/
+│           └── vars/
+│               └── vars.yml
 ├── provisioning/
 │   ├── main.tf
 │   ├── variables.tf

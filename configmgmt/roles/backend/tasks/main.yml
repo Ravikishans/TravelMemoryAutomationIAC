@@ -9,7 +9,7 @@
   ignore_errors: yes
 - name: creating .env inside backend
   shell: |
-    echo "MONGO_URI='mongodb+srv://ravikishan:Cluster0@cluster0.y9zohpu.mongodb.net/travelmemory'					
+    echo "MONGO_URL='mongodb://admin:admin@10.0.3.53:27017/travelmemory'				
     PORT=3001" > /home/ubuntu/TravelMemory/backend/.env
 - name: updating nginx
   shell: |

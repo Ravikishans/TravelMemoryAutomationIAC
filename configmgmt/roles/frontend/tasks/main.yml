@@ -8,7 +8,7 @@
   ignore_errors: yes
 - name: updating url.js inside frontend
   shell: |
-    echo 'export const baseUrl = "http://10.0.3.168/hello"' > /home/ubuntu/TravelMemory/frontend/src/url.js
+    echo 'export const baseUrl = "http://10.0.3.37:3001"' > /home/ubuntu/TravelMemory/frontend/src/url.js
 - name: updating nginx
   shell: |
     echo "server {

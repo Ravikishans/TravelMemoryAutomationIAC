@@ -1,0 +1,14 @@
+mongodb_version: "6.0"
+database_name: "travelmemory"
+
+login_host: 10.0.3.96
+login_port: 27017
+
+mongodb_root_user: "admin"
+mongodb_root_password: "admin"
+
+mongodb_admin_user: "superadmin"
+mongodb_admin_password: "superadmin123"
+
+mongodb_backup_user: "backupuser"
+mongodb_backup_password: "backupuser123"
