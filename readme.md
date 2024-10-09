@@ -41,12 +41,7 @@ travel-memory-project/
 │   ├── variables.tf
 │   ├── outputs.tf
 │   └── terraform.tfvars
-├── documentation/
-│   ├── README.md
-│   ├── implementation_report.md
-│   └── screenshots/
-├── .gitignore
-└── Makefile
+├── readme.md
 ```
 
 ---
