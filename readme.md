@@ -117,6 +117,12 @@ ansible -i configmgmt/hosts.ini backend -m ping
 ansible -i configmgmt/hosts.ini database -m ping
 ```
 
+### **OR till this step you can apply
+
+```bash
+bash run.sh
+```
+
 ### **Step 3: Run Web Server Setup Playbook**
 This playbook installs Node.js and NPM, clones the MERN application, and installs the dependencies:
 
