@@ -42,6 +42,9 @@ travel-memory-project/
 │   ├── outputs.tf
 │   └── terraform.tfvars
 ├── readme.md
+├── screenshots/
+├── run.sh
+
 ```
 
 ---
