@@ -218,4 +218,26 @@ pm2 logs
 
 By following the steps in this `README.md`, you should be able to successfully set up, configure, and deploy a MERN application on AWS using Terraform for infrastructure and Ansible for configuration management. If you encounter any issues, use the debugging commands provided to troubleshoot and monitor your deployment.
 
+
+
+## **Mongodb commands**
+
+```javascript
+mongosh --host <hostname> --port <port> -u <username> -p
+show dbs
+use travelmemory
+show collections
+db.<collection_name>.find().pretty()
+db.<collection_name>.find({ <field>: <value> }).pretty()
+db.createCollection("users")
+db.createCollection("logs", { capped: true, size: 100000 })
+```
+
+```javascript
+db.users.insertOne({
+    name: "ravi kishan",
+    email: "ravikishan1996@gmail.com",
+    age: 27
+})
+```
 ---

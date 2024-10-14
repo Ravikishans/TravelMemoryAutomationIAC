@@ -5,9 +5,9 @@ TERRAFORM_DIR="/mnt/c/Users/Ravik/Desktop/DevOps/TM_tera_ansible/provisioning"  
 LOCAL_FILE="/home/ravikishans/raviAWS.pem"            # Update this path to the local file to copy
 REMOTE_DEST="/home/ubuntu"                # Destination on the remote instance
 ANSIBLE_HOSTS_FILE="/mnt/c/Users/Ravik/Desktop/DevOps/TM_tera_ansible/configmgmt/hosts.ini"     # Update this path to your hosts.ini file
-# ANSIBLE_PLAYBOOK="/mnt/c/Users/Ravik/Desktop/DevOps/TM_tera_ansible/configmgmt/deploy_nginx.yml"      # Update this path to your Ansible playbook
 PEM_FILE="/home/ravikishans/raviAWS.pem"                   # Update this to your PEM file path
-
+url_js="/mnt/c/Users/Ravik/Desktop/DevOps/TM_tera_ansible/configmgmt/roles/frontend/vars/vars.yml"
+be_env="/mnt/c/Users/Ravik/Desktop/DevOps/TM_tera_ansible/configmgmt/roles/backend/vars/vars.yml"
 
 # Step 1: Run Terraform provisioning
 cd $TERRAFORM_DIR
@@ -38,6 +38,16 @@ rtm-database ansible_host=$DATABASE_PRIVATE_IP ansible_user=ubuntu ansible_ssh_p
 
 EOL
 
+# ssh-keygen -f "/home/ravikishans/.ssh/known_hosts" -R $DATABASE_PRIVATE_IP
+echo "updating url.js in frontend"
+cat <<EOL > $url_js
+export_const_baseUrl: $BACKEND_PRIVATE_IP
+EOL
+
+echo "update database url in backend .env"
+cat <<EOL > $be_env
+database_url: $DATABASE_PRIVATE_IP
+EOL
 
 ansible all -m ping -i $ANSIBLE_HOSTS_FILE
 # # Step 5: Run Ansible playbook to configure instances

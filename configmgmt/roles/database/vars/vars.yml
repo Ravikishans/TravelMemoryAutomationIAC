@@ -1,7 +1,7 @@
 mongodb_version: "6.0"
 database_name: "travelmemory"
 
-login_host: 10.0.3.96
+login_host: 10.0.3.191
 login_port: 27017
 
 mongodb_root_user: "admin"

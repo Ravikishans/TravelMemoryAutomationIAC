@@ -1,4 +1,10 @@
 ---
+- name: Restart mongod
+  shell: |
+    sudo systemctl start mongod
+    sudo systemctl enable mongod
+    sudo systemctl restart mongod 
+
 - name: Create MongoDB root user
   mongodb_user:
     login_host: "{{ login_host }}"
@@ -8,30 +14,63 @@
     password: "{{ mongodb_root_password }}"
     roles: "root"
 
-- name: Create MongoDB administrative user siteUserAdmin
-  mongodb_user:
-    login_host: "{{ login_host }}"
-    login_user: "{{ mongodb_root_user }}"
-    login_password: "{{ mongodb_root_password }}"
-    login_port: "{{ login_port }}"
-    database: "{{ database_name }}"
-    name: "{{ mongodb_admin_user }}"
-    password: "{{ mongodb_admin_password }}"
-    roles:
-      - { db: "admin", role: "readWrite" }
-      - { db: "{{ database_name }}", role: "readWrite" }
+# - name: Create MongoDB administrative user siteUserAdmin
+#   mongodb_user:
+#     login_host: "{{ login_host }}"
+#     login_user: "{{ mongodb_root_user }}"
+#     login_password: "{{ mongodb_root_password }}"
+#     login_port: "{{ login_port }}"
+#     database: "{{ database_name }}"
+#     name: "{{ mongodb_admin_user }}"
+#     password: "{{ mongodb_admin_password }}"
+#     roles:
+#       - { db: "admin", role: "readWrite" }
+#       - { db: "{{ database_name }}", role: "readWrite" }
 
-- name: Create MongoDB backup user siteUserBackup
-  mongodb_user:
-    login_host: "{{ login_host }}"
-    login_user: "{{ mongodb_root_user }}"
-    login_password: "{{ mongodb_root_password }}"
-    login_port: "{{ login_port }}"
-    database: "{{ database_name }}"
-    name: "{{ mongodb_backup_user }}"
-    password: "{{ mongodb_backup_password }}"
-    roles:
-      - { db: "admin", role: "backup" }
+# - name: Create MongoDB backup user siteUserBackup
+#   mongodb_user:
+#     login_host: "{{ login_host }}"
+#     login_user: "{{ mongodb_root_user }}"
+#     login_password: "{{ mongodb_root_password }}"
+#     login_port: "{{ login_port }}"
+#     database: "{{ database_name }}"
+#     name: "{{ mongodb_backup_user }}"
+#     password: "{{ mongodb_backup_password }}"
+#     roles:
+#       - { db: "admin", role: "backup" }
+
+# - name: Check if the '{{database_name}}' database exists
+#   shell: "mongosh --eval 'db.getMongo().getDBNames().indexOf(\"{{ database_name }}\") >= 0;'"
+#   register: db_check
+#   when: "'db' in group_names"
+- name: Check if the 'travelmemory' database exists
+  command: mongosh --eval "db = db.getSiblingDB('{{ database_name }}'); db.getMongo().getDBNames().includes('{{ database_name }}');"
+  register: db_check
+  changed_when: false
+
+- name: Debug database check
+  debug:
+    msg: "The condition was met: {{ db_check.stdout }}"
+  when: db_check is defined
+  
+
+# - name: Create 'travelmemory' database and user if it does not exists
+#   shell: >
+#     mongosh --eval "db = db.getSiblingDB('{{ database_name }}');
+#     db.createUser({user: '{{ mongodb_admin_user }}', pwd: '{{ mongodb_admin_password }}', roles: [{ role: 'readWrite', db: '{{ database_name }}' }]});"
+#   when: "'db' in group_names and db_check.stdout != 'true'"
+
+- name: Create 'travelmemory' database and user if it does not exist
+  shell: >
+    mongosh --eval "
+    db = db.getSiblingDB('{{ database_name }}');
+    db.createCollection('initialCollection'); // Create a collection to ensure the database is created
+    db.createUser({
+        user: '{{ mongodb_root_user }}',
+        pwd: '{{ mongodb_root_password }}',
+        roles: [{ role: 'readWrite', db: '{{ database_name }}' }]
+    });"
+  when: "'db' in group_names and db_check.stdout != 'false'"
 
 - name: Enable remote connections in MongoDB
   lineinfile:
@@ -43,12 +82,19 @@
   notify:
     - Restart MongoDB Service
 
-- name: Enable authentication in MongoDB
+- name: Check if MongoDB configuration has authentication enabled
+  slurp:
+    src: /etc/mongod.conf
+  register: mongod_conf
+
+- name: Enable authentication in MongoDB if not already enabled
   lineinfile:
     path: /etc/mongod.conf
     line: "security:\n  authorization: enabled"
     insertafter: "^#security:"
     state: present
     backup: yes
+  when: "'security:' in mongod_conf.content | b64decode and 'authorization: enabled' not in mongod_conf.content | b64decode"
   notify: 
     - Restart MongoDB Service
+
