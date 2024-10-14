@@ -14,6 +14,7 @@ cd $TERRAFORM_DIR
 terraform init
 terraform apply -auto-approve
 terraform output
+
 # Step 2: Get instance details (adjust depending on your output variables)
 # Assuming Terraform outputs the public and private IPs
 FRONTEND_PUBLIC_IP=$(terraform output instance_public_ip_fe)
